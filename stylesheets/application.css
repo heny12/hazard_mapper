@@ -5,69 +5,6 @@ html, body, #map {
   padding: 0;
 }
 
-.eruptions, .eruptions svg, .earthquakes, .earthquakes svg {
-  position: absolute;
-}
-
-.eruptions svg, .earthquakes svg {
-  width: 60px;
-  height: 20px;
-  padding-right: 100px;
-  font: 10px sans-serif;
-}
-
-.marker svg:circle:hover {
-  opacity: 1;
-}
-
-.eruptions circle {
-  fill: brown;
-  stroke: black;
-  stroke-width: 1.5px;
-}
-
-.hovered {
-  stroke-opacity: 1;
-  opacity: .8
-}
-
-.earthquakes circle {
-  fill: yellow;
-  stroke: black;
-  stroke-width: 1.5px;
-}
-
-.marker {
-  overflow: visible;
-  z-index: 9999;
-}
-
-.marker:hover {
-  svg:circle {
-    opacity: 1;
-    stroke-opacity: 1;
-  }
-}
-
-svg:circle {
-  z-index: 9999;
-}
-
-div.tooltip {   
-  position: absolute; 
-  color: red;          
-  text-align: center;           
-  width: auto;                  
-  height: auto;               
-  padding: 2px;             
-  font: 12px sans-serif;        
-  background: lightsteelblue;   
-  border: 0px;      
-  border-radius: 8px;           
-  pointer-events: none;
-  text-align: left;         
-}
-
 #timeline {
   height: 40px;
   width: 600px;
@@ -77,8 +14,10 @@ div.tooltip {
   bottom: 50px;
 }
 
+.eruption {
 
-.clear {
-  clear: both;
 }
 
+.earthquake {
+
+}

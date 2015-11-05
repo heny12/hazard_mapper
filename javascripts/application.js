@@ -9,6 +9,10 @@
     var MAX_YEAR_ERUPTIONS = d3.max(eruptions, function(d) { return +d.Year;});
     var MIN_YEAR_EARTHQUAKES = d3.min(earthquakes, function(d) { return +d.YEAR;});
     var MAX_YEAR_EARTHQUAKES = d3.max(earthquakes, function(d) { return +d.YEAR;});
+    var ERUPTION_COLOR = '#FF0000';
+    var EARTHQUAKE_COLOR = '#FF9900';
+    var EARTHQUAKES = [];
+    var ERUPTIONS = [];
 
     var map = new google.maps.Map(d3.select("#map").node(), {
       zoom: INITIAL_ZOOM,
@@ -45,37 +49,35 @@
     var eruption_sizes = [3,4,6,8,12,23,45,80];
     var earthquake_sizes = [3,3.2,3.5,3.9,4.4,4.9,5.5,6.2,7,8,10,30,65,100];
 
+    var zoomSize = d3.scale.pow()
+            .domain([3,10])
+            .range([1,6]);
+    var zoomOpacity = d3.scale.linear()
+            .domain([3,10])
+            .range([0.25,0.4]);
+    var zoomBorderOpacity = d3.scale.linear()
+            .domain([3,10])
+            .range([0.15,0.05]);
+
+
     function eruption_size(i){
-      return eruption_sizes[i];
+      return eruption_sizes[i] * zoomSize(map.getZoom()) * 5000;
     }
 
     function earthquake_size(i){
-      return earthquake_sizes[i];
+      return earthquake_sizes[i]* zoomSize(map.getZoom()) * 3000;
+    }
+
+    function marker_opacity(){
+      return zoomOpacity[map.getZoom()];
+    }
+
+    function marker_border_opacity(){
+      return zoomBorderOpacity[map.getZoom()];
     }
 
     var width = 960,
         height = 500;
-
-    var x = d3.scale.linear()
-        .domain([0, width])
-        .range([0, width]);
-
-    var y = d3.scale.linear()
-        .domain([0, height])
-        .range([height, 0]);
-
-    var zoomSize = d3.scale.pow()
-            .domain([3,10])
-            .range([1,6]);
-    var zoomSize2 = d3.scale.pow()
-            .domain([3,10])
-            .range([0.5,1.5]);
-    var zoomOpacity = d3.scale.linear()
-            .domain([3,10])
-            .range([0.25,0.4]);
-    var zoomBorder = d3.scale.linear()
-            .domain([3,10])
-            .range([0.15,0.05]);
 
     var axisScale = d3.scale.linear()
             .domain([MIN_YEAR_ERUPTIONS,new Date().getFullYear()+1])
@@ -88,29 +90,23 @@
   map.addListener('zoom_changed', function() {
     var zoomLevel = map.getZoom();
 
-    var eruptions = d3.selectAll('.eruptions').selectAll('.marker')
-    eruptions.select(".eruptions-circle")
-      .attr("r", function(parentDatum){
-        return eruption_size(parentDatum.VEI)*zoomSize(zoomLevel);
-      })
-      .attr("opacity", function(d){
-        return zoomOpacity(zoomLevel);
-      })
-      .attr("stroke-width", function(d){
-        return zoomBorder(zoomLevel);
-      }); 
+    // TODO - need to find a way of semantically zooming on these markers
 
-    var earthquakes = d3.selectAll('.earthquakes').selectAll('.marker')
-    earthquakes.select(".earthquake-circle")
-      .attr("r", function(parentDatum){
-        return earthquake_size(parentDatum.INTENSITY)*zoomSize2(zoomLevel);
-      })
-      .attr("opacity", function(d){
-        return zoomOpacity(zoomLevel);
-      })
-      .attr("stroke-width", function(d){
-        return zoomBorder(zoomLevel);
-      }); 
+    console.log(EARTHQUAKES);
+    // for (var earthquake in EARTHQUAKES) {
+    //   var eq = EARTHQUAKES[earthquake];
+    //     eq.setOptions({});
+    // //   // eq.strokeOpacity = marker_border_opacity();
+    // //   // eq.fillOpacity = marker_opacity();
+    // //   // eq.radius = earthquake_size(EARTHQUAKES[earthquake].INTENSITY);
+    // }
+
+    // for (var eruption in ERUPTIONS) {
+    //   var er = ERUPTIONS[eruption];
+    //   er.strokeOpacity = marker_border_opacity();
+    //   er.fillOpacity = marker_opacity();
+    //   er.radius = eruption_size(ERUPTIONS[eruption].VEI);
+    // }
 
   });
 
@@ -118,134 +114,42 @@
   // ------------------------------------------------------------------------
   // Overlay for eruptions
   // ------------------------------------------------------------------------
-    var overlay1 = new google.maps.OverlayView();
 
-    // Add the container when the overlay is added to the map.
-    overlay1.onAdd = function() {
-      var layer = d3.select(this.getPanes().overlayMouseTarget).append("div")
-          .attr("class", "eruptions");
-
-      // Draw each marker as a separate SVG element.
-      // We could use a single SVG, but what size would it have?
-      overlay1.draw = function() {
-        var projection = this.getProjection(),
-            padding = 10;
-
-        var marker = layer.selectAll("svg")
-            .data(eruptions)
-            .each(transform) // update existing markers
-            .enter().append("svg:svg")
-            .each(transform)
-            .attr("class", "marker")
-            .on('mouseover', function(d){
-              d3.selectAll('circle').classed("hovered",false);
-              var node = d3.select(this).select('circle');
-              node.attr('class','hovered');
-              tip.transition()        
-                .duration(100)      
-                .style("opacity", .9);
-              tip .html(eruptionHtml(d))  
-                .style("left", (d3.event.pageX + 25 ) + "px")     
-                .style("top", (d3.event.pageY ) + "px"); 
-
-            })
-            .on('mouseout', function(d){
-              // var node = d3.select(this).select('circle');
-              // node.classed("hovered", false);
-              tip.transition()        
-                  .duration(100)      
-                  .style("opacity", 0); 
-            });
-
-        // Add a circle.
-        var circle = marker.append("svg:circle")
-            .attr("opacity", zoomOpacity(INITIAL_ZOOM))
-            .attr("class", "eruptions-circle")
-            .attr("stroke-width", zoomBorder(INITIAL_ZOOM))
-            .attr("r", function(d) {
-              return eruption_size(d.VEI)*zoomSize(INITIAL_ZOOM)
-            })
-            .attr("cx", padding)
-            .attr("cy", padding);
-
-        function transform(d) {
-          d = new google.maps.LatLng(d.Latitude, d.Longitude);
-          d = projection.fromLatLngToDivPixel(d);
-          return d3.select(this)
-              .style("left", (d.x - padding) + "px")
-              .style("top", (d.y - padding) + "px");
-        }
-      };
-    };
-
-    // Bind our overlay to the map…
-    overlay1.setMap(map);
+  for (var eruption in eruptions) {
+    var coordinates = new google.maps.LatLng(eruptions[eruption].Latitude, eruptions[eruption].Longitude);
+    var eruptionCircle = new google.maps.Circle({
+      class: 'marker eruption',
+      strokeColor: ERUPTION_COLOR,
+      strokeOpacity: marker_border_opacity(),
+      strokeWeight: 2,
+      fillColor: ERUPTION_COLOR,
+      fillOpacity: marker_opacity(),
+      map: map,
+      center: coordinates,
+      radius: eruption_size(eruptions[eruption].VEI)
+    });
+    ERUPTIONS.push(eruptionCircle);
+  }
 
   // ------------------------------------------------------------------------
   // Overlay for earthquakes
   // ------------------------------------------------------------------------
-    var overlay2 = new google.maps.OverlayView();
 
-    // Add the container when the overlay is added to the map.
-    overlay2.onAdd = function() {
-      var layer = d3.select(this.getPanes().overlayMouseTarget).append("div")
-          .attr("class", "earthquakes");
-
-      // Draw each marker as a separate SVG element.
-      // We could use a single SVG, but what size would it have?
-      overlay2.draw = function() {
-        var projection = this.getProjection(),
-            padding = 10;
-
-        var marker = layer.selectAll("svg")
-            .data(earthquakes)
-            .each(transform) // update existing markers
-          .enter().append("svg:svg")
-            .each(transform)
-            .attr("class", "marker")
-            .on('mouseover', function(d){
-              d3.selectAll('circle').classed("hovered",false);
-              var node = d3.select(this).select('circle');
-              node.attr('class','hovered');
-              tip.transition()        
-                .duration(100)      
-                .style("opacity", .9);
-              tip .html(earthquakeHtml(d))  
-                .style("left", (d3.event.pageX + 25 ) + "px")     
-                .style("top", (d3.event.pageY ) + "px"); 
-
-            })
-            .on('mouseout', function(d){
-              tip.transition()        
-                  .duration(100)      
-                  .style("opacity", 0); 
-            });
-
-        // Add a circle.
-        marker.append("svg:circle")
-            .attr("opacity", zoomOpacity(INITIAL_ZOOM))
-            .attr("class", "earthquake-circle")
-            .attr("stroke-width", zoomBorder(INITIAL_ZOOM))
-            .attr("r", function(d){
-              return earthquake_size(d.INTENSITY)*zoomSize2(INITIAL_ZOOM);
-            })
-            .attr("cx", padding)
-            .attr("cy", padding);
-
-
-        function transform(d) {
-          d = new google.maps.LatLng(d.LATITUDE, d.LONGITUDE);
-          d = projection.fromLatLngToDivPixel(d);
-          return d3.select(this)
-              .style("left", (d.x - padding) + "px")
-              .style("top", (d.y - padding) + "px");
-        }
-      };
-    };
-
-    // Bind our overlay to the map…
-    overlay2.setMap(map);
-
+  for (var earthquake in earthquakes) {
+    var coordinates = new google.maps.LatLng(earthquakes[earthquake].LATITUDE, earthquakes[earthquake].LONGITUDE);
+    var earthquakeCircle = new google.maps.Circle({
+      class: 'marker earthquake',
+      strokeColor: EARTHQUAKE_COLOR,
+      strokeOpacity: marker_border_opacity,
+      strokeWeight: 2,
+      fillColor: EARTHQUAKE_COLOR,
+      fillOpacity: marker_opacity(),
+      map: map,
+      center: coordinates,
+      radius: earthquake_size(earthquakes[earthquake].INTENSITY)
+    });
+    EARTHQUAKES.push(earthquakeCircle);
+  }
 
   // ------------------------------------------------------------------------
   // Items for tooltip
