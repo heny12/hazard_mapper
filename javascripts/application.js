@@ -14,8 +14,10 @@
 
     var TIMELINE_HI = NEXT_YEAR;
     var TIMELINE_LO = MIN_YEAR_ERUPTIONS;
-    var HIDE = [];
-    var SHOW = [];
+    var SHOW_ERUPTIONS = true;
+    var SHOW_EARTHQUAKES = true;
+    var ERUPTION_COUNT = 0;
+    var EARTHQUAKE_COUNT = 0;
     var TIMER;
 
     var ERUPTION_COLOR = '#FF0000';
@@ -32,18 +34,22 @@
 
     var map = new google.maps.Map(d3.select("#map").node(), {
       zoom: INITIAL_ZOOM,
-      mapTypeId: google.maps.MapTypeId.TERRAIN
+      mapTypeId: google.maps.MapTypeId.TERRAIN,
+      disableDefaultUI: true
     });
 
-    $.get("http://ipinfo.io", function(response) {
-        if(response.loc){
-          coord = response.loc.split(",");
-          center = new google.maps.LatLng(coord[0],coord[1]);
-          map.panTo(center);
-        }else{ // if it doesnt work, pan to seattle of course
-          map.panTo(new google.maps.LatLng(47.6097, -122.3331));
-        }
-    }, "jsonp");
+    function centerMap(){
+      $.get("http://ipinfo.io", function(response) {
+          if(response.loc){
+            coord = response.loc.split(",");
+            center = new google.maps.LatLng(coord[0],coord[1]);
+            map.panTo(center);
+          }else{ // if it doesnt work, pan to seattle of course
+            map.panTo(new google.maps.LatLng(47.6097, -122.3331));
+          }
+      }, "jsonp");
+    };
+    centerMap();
 
      // Limit the zoom level
      google.maps.event.addListener(map, 'zoom_changed', function() {
@@ -55,7 +61,8 @@
     var kmzLayer = new google.maps.KmlLayer({
       url: 'http://earthquake.usgs.gov/learn/plate-boundaries.kmz',
       map: map,
-      preserveViewport: true
+      preserveViewport: true,
+      suppressInfoWindows: false
     });
 
 // ------------------------------------------------------------------------
@@ -108,13 +115,14 @@
 
       // TODO - need to find a way of semantically zooming on these markers
 
-      // for (var earthquake in EARTHQUAKES) {
-      //   var eq = EARTHQUAKES[earthquake];
-      //     eq.setOptions({});
-      // //   // eq.strokeOpacity = marker_border_opacity();
-      // //   // eq.fillOpacity = marker_opacity();
-      // //   // eq.radius = earthquake_size(EARTHQUAKES[earthquake].INTENSITY);
-      // }
+      for (var i in EARTHQUAKES) {
+        var earthquake = EARTHQUAKES[i];
+        console.log(earthquake);
+        earthquake.setOptions({radius:100});
+      //   // eq.strokeOpacity = marker_border_opacity();
+      //   // eq.fillOpacity = marker_opacity();
+      //   // eq.radius = earthquake_size(EARTHQUAKES[earthquake].INTENSITY);
+      }
 
       // for (var eruption in ERUPTIONS) {
       //   var er = ERUPTIONS[eruption];
@@ -243,7 +251,7 @@
             TIMELINE_LO = ui.values[ 0 ];
             TIMELINE_HI = ui.values[ 1 ];
             clearTimeout(TIMER);
-            var loading = $('body').append('<img src="loader.gif" id="loading" class="centered"></img>');
+            var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
             TIMER = setTimeout(function(){ adjust_visible(); }, 300);
           }
         });
@@ -263,17 +271,41 @@
                               .call(axis);
 
 
+// ------------------------------------------------------------------------
+// Controls Items
+// ------------------------------------------------------------------------
+
+  $('#find-me').on('click',function(){
+    centerMap();
+  })
+
+
+  $("#eruption-checkbox").on('click',function(){
+    var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
+    SHOW_ERUPTIONS = $("#eruption-checkbox").is(':checked')
+    adjust_visible();
+  })
+
+  $("#earthquake-checkbox").on('click',function(){
+    var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
+    SHOW_EARTHQUAKES = $("#earthquake-checkbox").is(':checked')
+    adjust_visible();
+  })  
 
 // ------------------------------------------------------------------------
 // Function to adjust the visible markers on the map
 // ------------------------------------------------------------------------
 
   function adjust_visible() {
+    ERUPTION_COUNT = ERUPTIONS.length;
+    EARTHQUAKE_COUNT = EARTHQUAKES.length;
 
     for(i in ERUPTIONS){
       eruption = ERUPTIONS[i];
-      if(eruption.data.Year < TIMELINE_LO || TIMELINE_HI < eruption.data.Year){
-        eruption.setVisible(false)
+
+      if(!SHOW_ERUPTIONS || eruption.data.Year < TIMELINE_LO || TIMELINE_HI < eruption.data.Year){
+        eruption.setVisible(false);
+        ERUPTION_COUNT--;
       }else{
         eruption.setVisible(true)
       }
@@ -281,14 +313,27 @@
 
     for(i in EARTHQUAKES){
       earthquake = EARTHQUAKES[i];
-      if(earthquake.data.YEAR < TIMELINE_LO || TIMELINE_HI < earthquake.data.YEAR){
-        earthquake.setVisible(false)
+
+      if(!SHOW_EARTHQUAKES || earthquake.data.YEAR < TIMELINE_LO || TIMELINE_HI < earthquake.data.YEAR){
+        earthquake.setVisible(false);
+        EARTHQUAKE_COUNT--;
       }else{
         earthquake.setVisible(true)
       }
     }
 
+    updateSubtitle();
     $('body').find('.centered').remove();
   }
 
+// ------------------------------------------------------------------------
+// Miscilaneous helpers
+// ------------------------------------------------------------------------
 
+  function updateSubtitle(){
+    $('#eruption-count').text(ERUPTION_COUNT);
+    $('#earthquake-count').text(EARTHQUAKE_COUNT);
+    $('#year-lo').text(TIMELINE_LO);
+    $('#year-hi').text(TIMELINE_HI);
+  };
+  

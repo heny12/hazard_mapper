@@ -15,9 +15,22 @@
 
   <body>
 
+    <div id='header'>
+      <h1>Historic Hazard Mapper</h1>
+      <p id="subtitle">Showing <span id='eruption-count'>--</span> Eruptions and <span id='earthquake-count'>--</span>  Earthquakes between years <span id='year-lo'>--</span> and <span id='year-hi'>--</span>.</p>
+      <img src="icons/controls.png" alt="controls" class='button'>
+      <img src="icons/target.png" alt="find me" class='button' id='find-me'>
+      <img src="icons/info.png" alt="information" class='button'>
+    </div>
+
     <div id="map"></div>
 
-    <div id="timeline">
+    <div class='bar' id="controls">
+      <input type="checkbox" id="eruption-checkbox" checked> Eruptions<br>
+      <input type="checkbox" id='earthquake-checkbox' checked> Earthquakes<br>
+    </div>
+
+    <div class='bar' id="timeline">
       <div id="slide">
         <div id="slider-range"></div>
       </div>
