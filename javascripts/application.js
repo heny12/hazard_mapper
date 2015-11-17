@@ -84,11 +84,11 @@
 
 
     function eruption_size(i){
-      return eruption_sizes[i] * zoomSize(map.getZoom()) * 5000;
+      return eruption_sizes[i] * zoomSize(map.getZoom()) * 4000;
     }
 
     function earthquake_size(i){
-      return earthquake_sizes[i]* zoomSize(map.getZoom()) * 3000;
+      return earthquake_sizes[i]* zoomSize(map.getZoom()) * 2000;
     }
 
     function marker_opacity(){
