@@ -3,18 +3,25 @@
 
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <!-- javascript dependancies for app -->
+    <script src="dependancies/jquery-2.1.4.js"></script>
+    <script src="dependancies/jquery-ui-1.11.4/jquery-ui.js"></script> 
     <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?1.29.1"></script>
+    <script type="text/javascript" src="dependancies/d3.v2.js"></script>
+   
+    <!-- stylesheets used in app -->
+    <link rel="stylesheet" href="dependancies/jquery-ui-1.11.4/jquery-ui.css">
     <link rel="stylesheet" href="stylesheets/application.css">
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+    <!-- eruption and earthquake json data, may want to move this serversid so that the browser doesnt have to do all of the data processing -->
     <script src="data/eruptions.js"></script>
     <script src="data/earthquakes.js"></script>
   </head>
 
   <body>
 
+    <!-- top header bar, contains title, subtitle, and buttons to access the page features -->
     <div id='header'>
       <h1>Historic Hazard Mapper</h1>
       <p id="subtitle">Showing <span id='eruption-count'>--</span> Eruptions and <span id='earthquake-count'>--</span>  Earthquakes between years <span id='year-lo'>--</span> and <span id='year-hi'>--</span>.</p>
@@ -23,8 +30,10 @@
       <img src="icons/info.png" alt="information" class='button'>
     </div>
 
+    <!-- container for google map -->
     <div id="map"></div>
 
+    <!-- contains controls for controlling the information shown on the page -->
     <div class='bar' id="controls">
       <input type="checkbox" id="eruption-checkbox" checked> Eruptions<br>
       <input type="checkbox" id='earthquake-checkbox' checked> Earthquakes<br>
@@ -38,6 +47,7 @@
 
   </body>
 
+  <!-- contains app specific logic, rendered after averything else -->
   <script type="text/javascript" src="javascripts/application.js"></script>
 
 </html>

@@ -2,43 +2,49 @@
 // Global variables
 // ------------------------------------------------------------------------
 
-    var MAX_ZOOM = 10;
-    var MIN_ZOOM = 3;
-    var INITIAL_ZOOM = 5;
+    var MAX_ZOOM = 10;    // maximum zoom level on google map
+    var MIN_ZOOM = 3;     // minimum zoom level on google map
+    var INITIAL_ZOOM = 5; // initial zoom level on google map when page is loaded
 
-    var MIN_YEAR_ERUPTIONS = d3.min(eruptions, function(d) { return +d.Year;});
-    var MAX_YEAR_ERUPTIONS = d3.max(eruptions, function(d) { return +d.Year;});
-    var MIN_YEAR_EARTHQUAKES = d3.min(earthquakes, function(d) { return +d.YEAR;});
-    var MAX_YEAR_EARTHQUAKES = d3.max(earthquakes, function(d) { return +d.YEAR;});
-    var NEXT_YEAR = new Date().getFullYear()+1;
+    var MIN_YEAR_ERUPTIONS = d3.min(eruptions, function(d) { return +d.Year;});     // earliest year in which there was an eruption
+    var MAX_YEAR_ERUPTIONS = d3.max(eruptions, function(d) { return +d.Year;});     // last year in which there was an eruption, presumably the current year
+    var MIN_YEAR_EARTHQUAKES = d3.min(earthquakes, function(d) { return +d.YEAR;}); // earliest year in which there was an earthquake
+    var MAX_YEAR_EARTHQUAKES = d3.max(earthquakes, function(d) { return +d.YEAR;}); // last year in which there was an earthquake, presumably the current year
+    var NEXT_YEAR = new Date().getFullYear()+1;  // year after the current year
 
-    var TIMELINE_HI = NEXT_YEAR;
-    var TIMELINE_LO = MIN_YEAR_ERUPTIONS;
-    var SHOW_ERUPTIONS = true;
-    var SHOW_EARTHQUAKES = true;
-    var ERUPTION_COUNT = 0;
-    var EARTHQUAKE_COUNT = 0;
-    var TIMER;
+    var TIMELINE_HI = NEXT_YEAR;                 // current high value on the timeline selector
+    var TIMELINE_LO = MIN_YEAR_ERUPTIONS;        // current low value on the timeline selector
+    var SHOW_ERUPTIONS = true;                   // whether we wish to show eruptions on the map or not
+    var SHOW_EARTHQUAKES = true;                 // whether we wish to show earthquakes on the map or not
+    var ERUPTION_COUNT = eruptions.length;       // count of eruptions plotted on the map
+    var EARTHQUAKE_COUNT = earthquakes.length;   // count of earthquakes plotted on the map
+    var TIMER;                                   // timer used for delaying queries until the user is done sliding the timeline
 
-    var ERUPTION_COLOR = '#FF0000';
-    var EARTHQUAKE_COLOR = '#FF9900';
+    var ERUPTION_COLOR = '#b30000';    // color for the eruption markers on the map
+    var EARTHQUAKE_COLOR = '#cca300';  // color for the earthquake markers on the map
 
-    var EARTHQUAKES = [];
-    var ERUPTIONS = [];
-    var INFO_WINDOW = '';
+    var EARTHQUAKES = [];   // array to store earthquake marker references
+    var ERUPTIONS = [];     // array to store eruption marker references
+    var INFO_WINDOW = '';   // text do display in the info window
 
 
 // ------------------------------------------------------------------------
 // Create the google map
 // ------------------------------------------------------------------------
 
+
+    // initializes google map into map container
     var map = new google.maps.Map(d3.select("#map").node(), {
       zoom: INITIAL_ZOOM,
       mapTypeId: google.maps.MapTypeId.TERRAIN,
-      disableDefaultUI: true
+      disableDefaultUI: true,  // dont display the google map ui things, they just get in the way
+      // scrollwheel: false
     });
 
+
+    // when called this function will center the map on the location of the users ip address,
     function centerMap(){
+      // gets location from this address TODO - maybe find a better way to get location
       $.get("http://ipinfo.io", function(response) {
           if(response.loc){
             coord = response.loc.split(",");
@@ -51,14 +57,17 @@
     };
     centerMap();
 
-     // Limit the zoom level
+
+     // Limits the zoom level of the map
      google.maps.event.addListener(map, 'zoom_changed', function() {
        if (map.getZoom() < MIN_ZOOM) map.setZoom(MIN_ZOOM);
        if (map.getZoom() > MAX_ZOOM) map.setZoom(MAX_ZOOM);
      });
 
+
     // Add our KML boundaries
     var kmzLayer = new google.maps.KmlLayer({
+      // this layer is probably meant for google earth and displays wierd horizontal bars, TODO - fix or find better layer
       url: 'http://earthquake.usgs.gov/learn/plate-boundaries.kmz',
       map: map,
       preserveViewport: true,
@@ -69,39 +78,51 @@
 // Scales
 // ------------------------------------------------------------------------
   
-    var eruption_sizes = [2.5,3,4,6,10,20,50,120];
-    var earthquake_sizes = [3,3.2,3.4,3.6,4,6,7,9,11,15,25,50,90,150];
+    var eruption_sizes = [2.5,3,4,6,10,20,50,120];  // relative radii sizes for veis 0-8
+    var earthquake_sizes = [3,3.2,3.4,3.6,4,6,7,9,11,15,25,50,90,150]; // relative radii sizes for magnitudes 0-12
 
+    // scale used to change marker sizes at different levels of zoom
     var zoomSize = d3.scale.pow()
             .domain([3,10])
             .range([1,6]);
+    // scale used to change marker opacities at different levels of zoom
     var zoomOpacity = d3.scale.linear()
             .domain([3,10])
             .range([0.25,0.4]);
+    // scale used to change marker border opacities at different levels of zoom        
     var zoomBorderOpacity = d3.scale.linear()
             .domain([3,10])
             .range([0.15,0.05]);
 
 
+    // calculates radius of eruption marker
     function eruption_size(i){
       return eruption_sizes[i] * zoomSize(map.getZoom()) * 4000;
     }
 
+
+    // calculates radius of earthquake marker
     function earthquake_size(i){
       return earthquake_sizes[i]* zoomSize(map.getZoom()) * 2000;
     }
 
+
+    // calculates opacity of marker
     function marker_opacity(){
       return zoomOpacity[map.getZoom()];
     }
 
+
+    // calculates opacity of marker border
     function marker_border_opacity(){
       return zoomBorderOpacity[map.getZoom()];
     }
 
+    // forget why i have these
     var width = 960,
         height = 500;
 
+    // scale used for timeline
     var axisScale = d3.scale.linear()
             .domain([MIN_YEAR_ERUPTIONS,NEXT_YEAR])
             .range([0,900]);
@@ -110,68 +131,80 @@
 // Handles zoom on the map
 // ------------------------------------------------------------------------      
 
-    map.addListener('zoom_changed', function() {
-      var zoomLevel = map.getZoom();
+    // // makes changes to markers when zoomed in or out on map
+    // map.addListener('zoom_changed', function() {
+    //   var zoomLevel = map.getZoom();
 
-      // TODO - need to find a way of semantically zooming on these markers
+    //   // TODO - need to find a way of semantically zooming on these markers
 
-      for (var i in EARTHQUAKES) {
-        var earthquake = EARTHQUAKES[i];
-        console.log(earthquake);
-        earthquake.setOptions({radius:100});
-      //   // eq.strokeOpacity = marker_border_opacity();
-      //   // eq.fillOpacity = marker_opacity();
-      //   // eq.radius = earthquake_size(EARTHQUAKES[earthquake].INTENSITY);
-      }
+    //   for (var i in EARTHQUAKES) {
+    //     var earthquake = EARTHQUAKES[i];
+    //     console.log(earthquake);
+    //     earthquake.setRadius(1000);
+    //   //   // eq.strokeOpacity = marker_border_opacity();
+    //   //   // eq.fillOpacity = marker_opacity();
+    //   //   // eq.radius = earthquake_size(EARTHQUAKES[earthquake].INTENSITY);
+    //   }
 
-      // for (var eruption in ERUPTIONS) {
-      //   var er = ERUPTIONS[eruption];
-      //   er.strokeOpacity = marker_border_opacity();
-      //   er.fillOpacity = marker_opacity();
-      //   er.radius = eruption_size(ERUPTIONS[eruption].VEI);
-      // }
+    //   // for (var eruption in ERUPTIONS) {
+    //   //   var er = ERUPTIONS[eruption];
+    //   //   er.strokeOpacity = marker_border_opacity();
+    //   //   er.fillOpacity = marker_opacity();
+    //   //   er.radius = eruption_size(ERUPTIONS[eruption].VEI);
+    //   // }
 
-    });
+    // });
 
 
 // ------------------------------------------------------------------------
 // Overlay for eruptions
 // ------------------------------------------------------------------------
 
+    
+    // For each eruption record that we have, lets create a marker on the map
     for (var eruption in eruptions) {
       addEruption(eruption);
     }
 
+
+    // Adds a circle marker to the google map with attributes based on its data
     function addEruption(eruption) {
-      var coordinates = new google.maps.LatLng(eruptions[eruption].Latitude, eruptions[eruption].Longitude);
       var eruptionCircle = new google.maps.Circle({
         class: 'marker eruption',
         strokeColor: ERUPTION_COLOR,
         strokeOpacity: marker_border_opacity(),
-        strokeWeight: 2,
+        strokeWeight: 1,
         fillColor: ERUPTION_COLOR,
         fillOpacity: marker_opacity(),
         map: map,
-        center: coordinates,
+        center: new google.maps.LatLng(eruptions[eruption].Latitude, eruptions[eruption].Longitude),
         radius: eruption_size(eruptions[eruption].VEI),
         data: eruptions[eruption],
         html: eruptionHtml(eruptions[eruption])
       });
 
+
+      // Adds a listener that will show an info window for the marker when clicked
       eruptionCircle.addListener('click', function(event) {
         infowindow.setContent(this.html);
         infowindow.setPosition(event.latLng);
         infowindow.open(map, this);
       });
 
+
+      // When we hover over a marker, lets make it more opaque 
       eruptionCircle.addListener('mouseover', function(event) {
         this.setOptions({fillOpacity: 0.9});
       }); 
 
+
+      // return the marker to normal opacity when we are no longer hovering over it
       eruptionCircle.addListener('mouseout', function(event) {
         this.setOptions({fillOpacity: marker_opacity()});
       });
 
+
+      // Add reference to each marker ot an array for later use
       ERUPTIONS.push(eruptionCircle);  
     }
 
@@ -179,37 +212,52 @@
 // Overlay for earthquakes
 // ------------------------------------------------------------------------
 
+    
+    // For each earthquake record that we have, lets create a marker on the map
     for (var earthquake in earthquakes) {
-      var coordinates = new google.maps.LatLng(earthquakes[earthquake].LATITUDE, earthquakes[earthquake].LONGITUDE);
+      addEarthquake(earthquake);
+    }
+
+
+    // Adds a circle marker to the google map with attributes based on its data
+    function addEarthquake(earthquake) {
       var earthquakeCircle = new google.maps.Circle({
         class: 'marker earthquake',
         strokeColor: EARTHQUAKE_COLOR,
         strokeOpacity: marker_border_opacity(),
-        strokeWeight: 2,
+        strokeWeight: 1,
         fillColor: EARTHQUAKE_COLOR,
         fillOpacity: marker_opacity(),
         map: map,
-        center: coordinates,
+        center: new google.maps.LatLng(earthquakes[earthquake].LATITUDE, earthquakes[earthquake].LONGITUDE),
         radius: earthquake_size(earthquakes[earthquake].INTENSITY),
         show: true,
         data: earthquakes[earthquake],
         html: earthquakeHtml(earthquakes[earthquake])
       });
 
+
+      // Adds a listener that will show an info window for the marker when clicked
       earthquakeCircle.addListener('click', function(event) {
         infowindow.setContent(this.html);
         infowindow.setPosition(event.latLng);
         infowindow.open(map, this);
       });   
 
+
+      // When we hover over a marker, lets make it more opaque 
       earthquakeCircle.addListener('mouseover', function(event) {
         this.setOptions({fillOpacity: 0.9});
       }); 
 
+
+      // return the marker to normal opacity when we are no longer hovering over it
       earthquakeCircle.addListener('mouseout', function(event) {
         this.setOptions({fillOpacity: marker_opacity()});
       });          
 
+
+      // Add reference to each marker ot an array for later use
       EARTHQUAKES.push(earthquakeCircle);
     }
 
@@ -217,10 +265,14 @@
 // Items for tooltip
 // ------------------------------------------------------------------------
 
+    // Google info window that take html from our global variable
     var infowindow = new google.maps.InfoWindow({
       content: INFO_WINDOW
     });
 
+
+    // generates html for info window for an eruption marker
+    // TODO gather more data to show user
     function eruptionHtml(d) {
       var box = "<h2>Eruption</h2>" +
       "<p>Name: " + d.Name + "</p><p>Type: " + d.Type + 
@@ -229,6 +281,8 @@
       return box;
     }
 
+    // generates html for info windo for an earthquake marker
+    // TODO gather more data to show user
     function earthquakeHtml(d) {
       var box = "<h2>Earthquake</h2>" +
       "<p>Location: " + d.LOCATION_NAME + "</p><p>Focal Depth: " + d.FOCAL_DEPTH + 
@@ -241,6 +295,8 @@
 // Items for timeline
 // ------------------------------------------------------------------------
 
+
+    // Jquery ui slider that ranges from our lowest year to next year
     $(function() {
         $( "#slider-range" ).slider({
           range: true,
@@ -248,10 +304,13 @@
           max: NEXT_YEAR,
           values: [ MIN_YEAR_ERUPTIONS, NEXT_YEAR ],
           slide: function( event, ui ) {
-            TIMELINE_LO = ui.values[ 0 ];
-            TIMELINE_HI = ui.values[ 1 ];
+            TIMELINE_LO = ui.values[ 0 ]; // sets the current low year
+            TIMELINE_HI = ui.values[ 1 ]; // sets the current high year
             clearTimeout(TIMER);
-            var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
+            var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>'); // show loading icon while we wait
+            // we want to use a timer here because otherwise the adjust_visible function would be call a bunch
+            // of times while the slider is being slid. This waits for .3 seconds of inactivity of the slider
+            // assuming that the user is done adjusting the date
             TIMER = setTimeout(function(){ adjust_visible(); }, 300);
           }
         });
@@ -296,6 +355,7 @@
 // Function to adjust the visible markers on the map
 // ------------------------------------------------------------------------
 
+  // TODO - if we show/hide with jquery rather than set the google map visibility that may improve performance
   function adjust_visible() {
     ERUPTION_COUNT = ERUPTIONS.length;
     EARTHQUAKE_COUNT = EARTHQUAKES.length;
@@ -330,10 +390,12 @@
 // Miscilaneous helpers
 // ------------------------------------------------------------------------
 
+  // used to update the subtitle of the page with information about what data is being shown
   function updateSubtitle(){
     $('#eruption-count').text(ERUPTION_COUNT);
     $('#earthquake-count').text(EARTHQUAKE_COUNT);
     $('#year-lo').text(TIMELINE_LO);
     $('#year-hi').text(TIMELINE_HI);
   };
+  updateSubtitle();
   
