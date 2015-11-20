@@ -3,6 +3,7 @@
 
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <link rel="icon" type="image/png" href="icons/favicon.ico" />
 
     <!-- javascript dependancies for app -->
     <script src="dependancies/jquery-2.1.4.js"></script>
@@ -28,6 +29,7 @@
       <img src="icons/controls.png" alt="controls" class='button'>
       <img src="icons/target.png" alt="find me" class='button' id='find-me'>
       <img src="icons/info.png" alt="information" class='button'>
+      <img src="icons/eye.png" alt="change view" class='button' id='change-view'>
     </div>
 
     <!-- container for google map -->
@@ -35,8 +37,14 @@
 
     <!-- contains controls for controlling the information shown on the page -->
     <div class='bar' id="controls">
-      <input type="checkbox" id="eruption-checkbox" checked> Eruptions<br>
-      <input type="checkbox" id='earthquake-checkbox' checked> Earthquakes<br>
+      <input type="checkbox" id="eruption-checkbox" checked> Eruptions: VEI  
+      <input type="number" name="vei" min="0" max="8" value ="0" id='min-vei'> to 
+      <input type="number" name="vei" min="0" max="8" value ="8" id='max-vei'>
+      <br>
+      <input type="checkbox" id='earthquake-checkbox' checked> Earthquakes: Magnitude  
+      <input type="number" name="magnitude" min="0" max="12" value ="0" id='min-mag'> to 
+      <input type="number" name="magnitude" min="0" max="12" value ="12" id='max-mag'>      
+      <br>
     </div>
 
     <div class='bar' id="timeline">

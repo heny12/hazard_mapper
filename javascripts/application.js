@@ -19,6 +19,10 @@
     var ERUPTION_COUNT = eruptions.length;       // count of eruptions plotted on the map
     var EARTHQUAKE_COUNT = earthquakes.length;   // count of earthquakes plotted on the map
     var TIMER;                                   // timer used for delaying queries until the user is done sliding the timeline
+    var MIN_VEI = 0;
+    var MAX_VEI = 8;
+    var MIN_MAG = 0;
+    var MAX_MAG = 12;
 
     var ERUPTION_COLOR = '#b30000';    // color for the eruption markers on the map
     var EARTHQUAKE_COLOR = '#cca300';  // color for the earthquake markers on the map
@@ -36,7 +40,7 @@
     // initializes google map into map container
     var map = new google.maps.Map(d3.select("#map").node(), {
       zoom: INITIAL_ZOOM,
-      mapTypeId: google.maps.MapTypeId.TERRAIN,
+      mapTypeId: google.maps.MapTypeId.HYBRID,
       disableDefaultUI: true,  // dont display the google map ui things, they just get in the way
       // scrollwheel: false
     });
@@ -135,23 +139,23 @@
     // map.addListener('zoom_changed', function() {
     //   var zoomLevel = map.getZoom();
 
-    //   // TODO - need to find a way of semantically zooming on these markers
+    // //   // TODO - need to find a way of semantically zooming on these markers
 
     //   for (var i in EARTHQUAKES) {
     //     var earthquake = EARTHQUAKES[i];
     //     console.log(earthquake);
-    //     earthquake.setRadius(1000);
+    //     earthquake.set('radius',1000);
     //   //   // eq.strokeOpacity = marker_border_opacity();
     //   //   // eq.fillOpacity = marker_opacity();
     //   //   // eq.radius = earthquake_size(EARTHQUAKES[earthquake].INTENSITY);
     //   }
 
-    //   // for (var eruption in ERUPTIONS) {
-    //   //   var er = ERUPTIONS[eruption];
-    //   //   er.strokeOpacity = marker_border_opacity();
-    //   //   er.fillOpacity = marker_opacity();
-    //   //   er.radius = eruption_size(ERUPTIONS[eruption].VEI);
-    //   // }
+    // //   // for (var eruption in ERUPTIONS) {
+    // //   //   var er = ERUPTIONS[eruption];
+    // //   //   er.strokeOpacity = marker_border_opacity();
+    // //   //   er.fillOpacity = marker_opacity();
+    // //   //   er.radius = eruption_size(ERUPTIONS[eruption].VEI);
+    // //   // }
 
     // });
 
@@ -307,7 +311,7 @@
             TIMELINE_LO = ui.values[ 0 ]; // sets the current low year
             TIMELINE_HI = ui.values[ 1 ]; // sets the current high year
             clearTimeout(TIMER);
-            var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>'); // show loading icon while we wait
+            addLoadingIcon(); // show loading icon while we wait
             // we want to use a timer here because otherwise the adjust_visible function would be call a bunch
             // of times while the slider is being slid. This waits for .3 seconds of inactivity of the slider
             // assuming that the user is done adjusting the date
@@ -340,14 +344,47 @@
 
 
   $("#eruption-checkbox").on('click',function(){
-    var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
+    addLoadingIcon();
     SHOW_ERUPTIONS = $("#eruption-checkbox").is(':checked')
     adjust_visible();
   })
 
   $("#earthquake-checkbox").on('click',function(){
-    var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
+    addLoadingIcon();
     SHOW_EARTHQUAKES = $("#earthquake-checkbox").is(':checked')
+    adjust_visible();
+  }) 
+
+  $("#change-view").on('click',function(){
+    addLoadingIcon();
+    if(map.getMapTypeId() == 'hybrid'){
+      map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
+    }else{
+      map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+    }
+  }) 
+
+  map.addListener('tilesloaded',function(){
+    removeLoadingIcon();
+  })
+
+  $('#min-vei').on('change',function(){
+    MIN_VEI = $('#min-vei').val();
+    adjust_visible();  
+  })
+
+  $('#max-vei').on('change',function(){
+    MAX_VEI = $('#max-vei').val();
+    adjust_visible();
+  })
+
+  $('#min-mag').on('change',function(){
+    MIN_MAG = $('#min-mag').val();
+    adjust_visible();    
+  })  
+
+  $('#max-mag').on('change',function(){
+    MAX_MAG = $('#max-mag').val();
     adjust_visible();
   })  
 
@@ -363,7 +400,9 @@
     for(i in ERUPTIONS){
       eruption = ERUPTIONS[i];
 
-      if(!SHOW_ERUPTIONS || eruption.data.Year < TIMELINE_LO || TIMELINE_HI < eruption.data.Year){
+      if(!SHOW_ERUPTIONS 
+        || eruption.data.VEI < MIN_VEI || eruption.data.VEI > MAX_VEI
+        || eruption.data.Year < TIMELINE_LO || TIMELINE_HI < eruption.data.Year){
         eruption.setVisible(false);
         ERUPTION_COUNT--;
       }else{
@@ -374,7 +413,9 @@
     for(i in EARTHQUAKES){
       earthquake = EARTHQUAKES[i];
 
-      if(!SHOW_EARTHQUAKES || earthquake.data.YEAR < TIMELINE_LO || TIMELINE_HI < earthquake.data.YEAR){
+      if(!SHOW_EARTHQUAKES 
+        || earthquake.data.INTENSITY < MIN_MAG || eruption.data.INTENSITY > MAX_MAG
+        || earthquake.data.YEAR < TIMELINE_LO || TIMELINE_HI < earthquake.data.YEAR){
         earthquake.setVisible(false);
         EARTHQUAKE_COUNT--;
       }else{
@@ -383,7 +424,7 @@
     }
 
     updateSubtitle();
-    $('body').find('.centered').remove();
+    removeLoadingIcon();
   }
 
 // ------------------------------------------------------------------------
@@ -398,4 +439,32 @@
     $('#year-hi').text(TIMELINE_HI);
   };
   updateSubtitle();
+
+  // Sort dataset by volcanic explosivity index
+  // dataset.sort(compareEruptions);
+  function compareEruptions(a,b) {
+    if(a.VEI < b.VEI)
+      return 1;
+    if(a.VEI > b.VEI)
+      return -1;
+    return 0;
+  }
+
+  // Sort dataset by earthquake intensity
+  // dataset.sort(compareEarthquakes);
+  function compareEarthquakes(a,b) {
+    if(a.INTENSITY < b.INTENSITY)
+      return 1;
+    if(a.VEI > b.INTENSITY)
+      return -1;
+    return 0;
+  }  
+
+  function removeLoadingIcon(){
+    $('body').find('.centered').remove();
+  }
+
+  function addLoadingIcon(){
+    var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
+  }
   

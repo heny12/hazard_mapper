@@ -77,7 +77,11 @@ h1 {
 }
 
 .earthquake {
+  z-index: 101
+}
 
+.eruption {
+  z-index: 100
 }
 
 .centered {
