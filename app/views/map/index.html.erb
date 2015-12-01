@@ -1,0 +1,31 @@
+    <!-- top header bar, contains title, subtitle, and buttons to access the page features -->
+    <div id='header'>
+      <h1>Historic Hazard Mapper</h1>
+      <p id="subtitle">Showing <span id='eruption-count'>--</span> Eruptions and <span id='earthquake-count'>--</span>  Earthquakes between years <span id='year-lo'>--</span> and <span id='year-hi'>--</span>.</p>
+      <img src="controls.png" alt="controls" class='button'>
+      <img src="target.png" alt="find me" class='button' id='find-me'>
+      <img src="info.png" alt="information" class='button'>
+      <img src="eye.png" alt="change view" class='button' id='change-view'>
+    </div>
+
+    <!-- container for google map -->
+    <div id="map"></div>
+
+
+    <!-- contains controls for controlling the information shown on the page -->
+    <div class='bar' id="controls">
+      <input type="checkbox" id="eruption-checkbox" checked> Eruptions: VEI  
+      <input type="number" name="vei" min="0" max="8" value ="0" id='min-vei'> to 
+      <input type="number" name="vei" min="0" max="8" value ="8" id='max-vei'>
+      <br>
+      <input type="checkbox" id='earthquake-checkbox' checked> Earthquakes: Magnitude  
+      <input type="number" name="magnitude" min="0" max="12" value ="0" id='min-mag'> to 
+      <input type="number" name="magnitude" min="0" max="12" value ="12" id='max-mag'>      
+      <br>
+    </div>
+
+    <div class='bar' id="timeline">
+      <div id="slide">
+        <div id="slider-range"></div>
+      </div>
+    </div>

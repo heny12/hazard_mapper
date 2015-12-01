@@ -1,0 +1,119 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Earthquakes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Usgs</th>
+      <th>Tsunami</th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>Day</th>
+      <th>Hour</th>
+      <th>Minute</th>
+      <th>Second</th>
+      <th>Focal depth</th>
+      <th>Eq primary</th>
+      <th>Eq mag mw</th>
+      <th>Eq mag ms</th>
+      <th>Eq mag mb</th>
+      <th>Eq mag ml</th>
+      <th>Eq mag mfa</th>
+      <th>Eq mag unk</th>
+      <th>Intensity</th>
+      <th>Country</th>
+      <th>State</th>
+      <th>Location</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Region code</th>
+      <th>Houses damaged</th>
+      <th>Houses damaged description</th>
+      <th>Total houses damaged</th>
+      <th>Total houses damaged description</th>
+      <th>Death count</th>
+      <th>Death description</th>
+      <th>Missing count</th>
+      <th>Missing description</th>
+      <th>Injury count</th>
+      <th>Injury description</th>
+      <th>Damage cost</th>
+      <th>Damage description</th>
+      <th>Houses destroyed</th>
+      <th>Houses destroyed description</th>
+      <th>Total deaths</th>
+      <th>Total deaths description</th>
+      <th>Total missing</th>
+      <th>Total missing description</th>
+      <th>Total injuries</th>
+      <th>Total injuries description</th>
+      <th>Total damage cost</th>
+      <th>Total damage description</th>
+      <th>Total houses destroyed</th>
+      <th>Total houses destroyed description</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @earthquakes.each do |earthquake| %>
+      <tr>
+        <td><%= earthquake.usgs_id %></td>
+        <td><%= earthquake.tsunami %></td>
+        <td><%= earthquake.year %></td>
+        <td><%= earthquake.month %></td>
+        <td><%= earthquake.day %></td>
+        <td><%= earthquake.hour %></td>
+        <td><%= earthquake.minute %></td>
+        <td><%= earthquake.second %></td>
+        <td><%= earthquake.focal_depth %></td>
+        <td><%= earthquake.eq_primary %></td>
+        <td><%= earthquake.eq_mag_mw %></td>
+        <td><%= earthquake.eq_mag_ms %></td>
+        <td><%= earthquake.eq_mag_mb %></td>
+        <td><%= earthquake.eq_mag_ml %></td>
+        <td><%= earthquake.eq_mag_mfa %></td>
+        <td><%= earthquake.eq_mag_unk %></td>
+        <td><%= earthquake.intensity %></td>
+        <td><%= earthquake.country %></td>
+        <td><%= earthquake.state %></td>
+        <td><%= earthquake.location %></td>
+        <td><%= earthquake.latitude %></td>
+        <td><%= earthquake.longitude %></td>
+        <td><%= earthquake.region_code %></td>
+        <td><%= earthquake.houses_damaged %></td>
+        <td><%= earthquake.houses_damaged_description %></td>
+        <td><%= earthquake.total_houses_damaged %></td>
+        <td><%= earthquake.total_houses_damaged_description %></td>
+        <td><%= earthquake.death_count %></td>
+        <td><%= earthquake.death_description %></td>
+        <td><%= earthquake.missing_count %></td>
+        <td><%= earthquake.missing_description %></td>
+        <td><%= earthquake.injury_count %></td>
+        <td><%= earthquake.injury_description %></td>
+        <td><%= earthquake.damage_cost %></td>
+        <td><%= earthquake.damage_description %></td>
+        <td><%= earthquake.houses_destroyed %></td>
+        <td><%= earthquake.houses_destroyed_description %></td>
+        <td><%= earthquake.total_deaths %></td>
+        <td><%= earthquake.total_deaths_description %></td>
+        <td><%= earthquake.total_missing %></td>
+        <td><%= earthquake.total_missing_description %></td>
+        <td><%= earthquake.total_injuries %></td>
+        <td><%= earthquake.total_injuries_description %></td>
+        <td><%= earthquake.total_damage_cost %></td>
+        <td><%= earthquake.total_damage_description %></td>
+        <td><%= earthquake.total_houses_destroyed %></td>
+        <td><%= earthquake.total_houses_destroyed_description %></td>
+        <td><%= link_to 'Show', earthquake %></td>
+        <td><%= link_to 'Edit', edit_earthquake_path(earthquake) %></td>
+        <td><%= link_to 'Destroy', earthquake, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Earthquake', new_earthquake_path %>

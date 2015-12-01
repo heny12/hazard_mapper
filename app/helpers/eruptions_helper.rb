@@ -1,0 +1,2 @@
+module EruptionsHelper
+end

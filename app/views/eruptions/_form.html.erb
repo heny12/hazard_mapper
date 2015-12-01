@@ -1,0 +1,161 @@
+<%= form_for(@eruption) do |f| %>
+  <% if @eruption.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@eruption.errors.count, "error") %> prohibited this eruption from being saved:</h2>
+
+      <ul>
+      <% @eruption.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :year %><br>
+    <%= f.number_field :year %>
+  </div>
+  <div class="field">
+    <%= f.label :month %><br>
+    <%= f.number_field :month %>
+  </div>
+  <div class="field">
+    <%= f.label :day %><br>
+    <%= f.number_field :day %>
+  </div>
+  <div class="field">
+    <%= f.label :tsunami %><br>
+    <%= f.check_box :tsunami %>
+  </div>
+  <div class="field">
+    <%= f.label :earthquake %><br>
+    <%= f.check_box :earthquake %>
+  </div>
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :location %><br>
+    <%= f.text_field :location %>
+  </div>
+  <div class="field">
+    <%= f.label :country %><br>
+    <%= f.text_field :country %>
+  </div>
+  <div class="field">
+    <%= f.label :latitude %><br>
+    <%= f.text_field :latitude %>
+  </div>
+  <div class="field">
+    <%= f.label :longitude %><br>
+    <%= f.text_field :longitude %>
+  </div>
+  <div class="field">
+    <%= f.label :elevation %><br>
+    <%= f.number_field :elevation %>
+  </div>
+  <div class="field">
+    <%= f.label :eruption_type %><br>
+    <%= f.text_field :eruption_type %>
+  </div>
+  <div class="field">
+    <%= f.label :status %><br>
+    <%= f.text_field :status %>
+  </div>
+  <div class="field">
+    <%= f.label :time %><br>
+    <%= f.text_field :time %>
+  </div>
+  <div class="field">
+    <%= f.label :vei %><br>
+    <%= f.number_field :vei %>
+  </div>
+  <div class="field">
+    <%= f.label :agent %><br>
+    <%= f.text_field :agent %>
+  </div>
+  <div class="field">
+    <%= f.label :death_count %><br>
+    <%= f.number_field :death_count %>
+  </div>
+  <div class="field">
+    <%= f.label :death_description %><br>
+    <%= f.number_field :death_description %>
+  </div>
+  <div class="field">
+    <%= f.label :missing_count %><br>
+    <%= f.number_field :missing_count %>
+  </div>
+  <div class="field">
+    <%= f.label :missing_description %><br>
+    <%= f.number_field :missing_description %>
+  </div>
+  <div class="field">
+    <%= f.label :injury_count %><br>
+    <%= f.number_field :injury_count %>
+  </div>
+  <div class="field">
+    <%= f.label :injury_description %><br>
+    <%= f.number_field :injury_description %>
+  </div>
+  <div class="field">
+    <%= f.label :damage_cost %><br>
+    <%= f.number_field :damage_cost %>
+  </div>
+  <div class="field">
+    <%= f.label :damage_description %><br>
+    <%= f.number_field :damage_description %>
+  </div>
+  <div class="field">
+    <%= f.label :houses_destroyed %><br>
+    <%= f.number_field :houses_destroyed %>
+  </div>
+  <div class="field">
+    <%= f.label :houses_destroyed_description %><br>
+    <%= f.number_field :houses_destroyed_description %>
+  </div>
+  <div class="field">
+    <%= f.label :total_deaths %><br>
+    <%= f.number_field :total_deaths %>
+  </div>
+  <div class="field">
+    <%= f.label :total_deaths_description %><br>
+    <%= f.number_field :total_deaths_description %>
+  </div>
+  <div class="field">
+    <%= f.label :total_missing %><br>
+    <%= f.number_field :total_missing %>
+  </div>
+  <div class="field">
+    <%= f.label :total_missing_description %><br>
+    <%= f.number_field :total_missing_description %>
+  </div>
+  <div class="field">
+    <%= f.label :total_injuries %><br>
+    <%= f.number_field :total_injuries %>
+  </div>
+  <div class="field">
+    <%= f.label :total_injuries_description %><br>
+    <%= f.number_field :total_injuries_description %>
+  </div>
+  <div class="field">
+    <%= f.label :total_damage_cost %><br>
+    <%= f.number_field :total_damage_cost %>
+  </div>
+  <div class="field">
+    <%= f.label :total_damage_description %><br>
+    <%= f.number_field :total_damage_description %>
+  </div>
+  <div class="field">
+    <%= f.label :total_houses_destroyed %><br>
+    <%= f.number_field :total_houses_destroyed %>
+  </div>
+  <div class="field">
+    <%= f.label :total_houses_destroyed_description %><br>
+    <%= f.number_field :total_houses_destroyed_description %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
