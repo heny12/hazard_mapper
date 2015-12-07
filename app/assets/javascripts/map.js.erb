@@ -226,7 +226,6 @@ $(document).ready(function() {
       addEarthquake(earthquakes[i]);
     }
 
-
     // Adds a circle marker to the google map with attributes based on its data
     function addEarthquake(earthquake) {
       var earthquakeCircle = new google.maps.Circle({
@@ -242,7 +241,6 @@ $(document).ready(function() {
         data: earthquake['id']
         // html: earthquakeHtml(earthquakes[earthquake])
       });
-
 
       // Adds a listener that will show an info window for the marker when clicked
       earthquakeCircle.addListener('click', function(event) {
