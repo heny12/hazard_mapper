@@ -186,14 +186,15 @@ $(document).ready(function() {
         map: map,
         center: new google.maps.LatLng(eruption.latitude, eruption.longitude),
         radius: eruption_size(eruption.vei),
-        data: eruption
+        data: eruption['id']
         // html: eruptionHtml(eruptions[eruption])
       });
 
 
       // Adds a listener that will show an info window for the marker when clicked
       eruptionCircle.addListener('click', function(event) {
-        infowindow.setContent(this.html);
+        var html = eruptionHtml(this.data);
+        infowindow.setContent(html);
         infowindow.setPosition(event.latLng);
         infowindow.open(map, this);
       });
@@ -238,14 +239,15 @@ $(document).ready(function() {
         map: map,
         center: new google.maps.LatLng(earthquake.latitude, earthquake.longitude),
         radius: earthquake_size(earthquake.intensity),
-        data: earthquake
+        data: earthquake['id']
         // html: earthquakeHtml(earthquakes[earthquake])
       });
 
 
       // Adds a listener that will show an info window for the marker when clicked
       earthquakeCircle.addListener('click', function(event) {
-        infowindow.setContent(this.html);
+        var html = earthquakeHtml(this.data);
+        infowindow.setContent(html);
         infowindow.setPosition(event.latLng);
         infowindow.open(map, this);
       });   
@@ -280,21 +282,27 @@ $(document).ready(function() {
     // generates html for info window for an eruption marker
     // TODO gather more data to show user
     function eruptionHtml(d) {
-      var box = "<h2>Eruption</h2>" +
-      "<p>Name: " + d.Name + "</p><p>Type: " + d.Type + 
-      "</p><p>Erupted on " + d.Month + "/" + d.Day + "/" + d.Year + 
-      "</p><p>VEI: " + d.VEI + "</p>"
-      return box;
+      $.ajax({
+        type: "GET",
+        url: "eruptions/" + d + ".json",
+        dataType: "json",
+        success: function(data){
+          infowindow.setContent("<h2>Eruption</h2>" + "<p>Name: " + data.name + "</p><p>Type: " + data.eruption_type + "</p><p>Erupted on " + data.month + "/" + data.day + "/" + data.year + "</p><p>VEI: " + data.vei + "</p>")
+        }
+      });
     }
 
     // generates html for info windo for an earthquake marker
     // TODO gather more data to show user
     function earthquakeHtml(d) {
-      var box = "<h2>Earthquake</h2>" +
-      "<p>Location: " + d.LOCATION_NAME + "</p><p>Focal Depth: " + d.FOCAL_DEPTH + 
-      " km</p><p>Occured on " + d.MONTH + "/" + d.DAY + "/" + d.YEAR + 
-      "</p><p>Magnitude: " + d.INTENSITY + "</p>"
-      return box;
+      $.ajax({
+        type: "GET",
+        url: "earthquakes/" + d + ".json",
+        dataType: "json",
+        success: function(data){
+          infowindow.setContent("<h2>Earthquake</h2>" + "<p>Location: " + data.location + "</p><p>Focal Depth: " + data.focal_depth + " km</p><p>Occured on " + data.month + "/" + data.day + "/" + data.year + "</p><p>Magnitude: " + data.intensity + "</p>")
+        }
+      });
     }
 
 // ------------------------------------------------------------------------
