@@ -3,8 +3,8 @@ ruby '2.2.0'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.4'
-# Use sqlite3 as the database for Active Record
-gem 'sqlite3'
+# Use pg as the database for Active Record
+gem 'pg'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -34,7 +34,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem "d3-rails"
 gem 'jquery-ui-rails'
-gem 'pg' 
+
 gem 'rails_12factor', group: :production
 gem 'puma'
 gem 'gon'
@@ -52,3 +52,4 @@ group :development do
   gem 'spring'
 end
 
+gem 'rails_12factor', group: :production
