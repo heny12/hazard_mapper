@@ -176,20 +176,23 @@ $(document).ready(function() {
 
     // Adds a circle marker to the google map with attributes based on its data
     function addEruption(eruption) {
-      var eruptionCircle = new google.maps.Circle({
+      var eruptionCircle = new google.maps.Marker({
         class: 'marker eruption',
-        strokeColor: ERUPTION_COLOR,
-        strokeOpacity: marker_border_opacity(),
-        strokeWeight: 1,
-        fillColor: ERUPTION_COLOR,
-        fillOpacity: marker_opacity(),
+        icon: {
+          path: "M-20,0a20,20 0 1,0 40,0a20,20 0 1,0 -40,0",
+          fillColor: ERUPTION_COLOR,
+          fillOpacity: 0.5,
+          strokeColor: 'black',
+          strokeOpacity: 0.6,
+          strokeWeight: 0.5,
+          anchor: new google.maps.Point(0,0),
+          scale: eruption_sizes[eruption['vei']]/10
+        },
         map: map,
-        center: new google.maps.LatLng(eruption.latitude, eruption.longitude),
-        radius: eruption_size(eruption.vei),
-        data: eruption['id']
-        // html: eruptionHtml(eruptions[eruption])
+        position: new google.maps.LatLng(eruption.latitude, eruption.longitude),
+        data: eruption['id'],
+        zIndex: 108 - eruption['vei']
       });
-
 
       // Adds a listener that will show an info window for the marker when clicked
       eruptionCircle.addListener('click', function(event) {
@@ -228,18 +231,22 @@ $(document).ready(function() {
 
     // Adds a circle marker to the google map with attributes based on its data
     function addEarthquake(earthquake) {
-      var earthquakeCircle = new google.maps.Circle({
+      var earthquakeCircle = new google.maps.Marker({
         class: 'marker earthquake',
-        strokeColor: EARTHQUAKE_COLOR,
-        strokeOpacity: marker_border_opacity(),
-        strokeWeight: 1,
-        fillColor: EARTHQUAKE_COLOR,
-        fillOpacity: marker_opacity(),
+        icon: {
+          path: "M-20,0a20,20 0 1,0 40,0a20,20 0 1,0 -40,0",
+          fillColor: EARTHQUAKE_COLOR,
+          fillOpacity: 0.5,
+          strokeColor: 'black',
+          strokeOpacity: 0.6,
+          strokeWeight: 0.5,
+          anchor: new google.maps.Point(0,0),
+          scale: earthquake_sizes[earthquake['intensity']]/10
+        },
         map: map,
-        center: new google.maps.LatLng(earthquake.latitude, earthquake.longitude),
-        radius: earthquake_size(earthquake.intensity),
-        data: earthquake['id']
-        // html: earthquakeHtml(earthquakes[earthquake])
+        position: new google.maps.LatLng(earthquake.latitude, earthquake.longitude),
+        data: earthquake['id'],
+        zIndex: 112- earthquake['intensity']
       });
 
       // Adds a listener that will show an info window for the marker when clicked
