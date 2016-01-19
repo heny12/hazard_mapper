@@ -1,4 +1,4 @@
-$(document).ready(function() { 
+$(document).ready(function() {
 // ------------------------------------------------------------------------
 // Global variables
 // ------------------------------------------------------------------------
@@ -75,7 +75,7 @@ $(document).ready(function() {
     // Add our KML boundaries
     var kmzLayer = new google.maps.KmlLayer({
       // this layer is probably meant for google earth and displays wierd horizontal bars, TODO - fix or find better layer
-      url: 'http://earthquake.usgs.gov/learn/plate-boundaries.kmz',
+      url: 'https://earthquake.usgs.gov/learn/plate-boundaries.kmz',
       map: map,
       preserveViewport: true,
       suppressInfoWindows: false
@@ -84,7 +84,7 @@ $(document).ready(function() {
 // ------------------------------------------------------------------------
 // Scales
 // ------------------------------------------------------------------------
-  
+
     var eruption_sizes = [2.5,3,4,6,10,20,50,120];  // relative radii sizes for veis 0-8
     var earthquake_sizes = [3,3.2,3.4,3.6,4,6,7,9,11,15,25,50,90,150]; // relative radii sizes for magnitudes 0-12
 
@@ -96,7 +96,7 @@ $(document).ready(function() {
     var zoomOpacity = d3.scale.linear()
             .domain([3,10])
             .range([0.25,0.4]);
-    // scale used to change marker border opacities at different levels of zoom        
+    // scale used to change marker border opacities at different levels of zoom
     var zoomBorderOpacity = d3.scale.linear()
             .domain([3,10])
             .range([0.15,0.05]);
@@ -136,7 +136,7 @@ $(document).ready(function() {
 
 // ------------------------------------------------------------------------
 // Handles zoom on the map
-// ------------------------------------------------------------------------      
+// ------------------------------------------------------------------------
 
     // // makes changes to markers when zoomed in or out on map
     // map.addListener('zoom_changed', function() {
@@ -167,7 +167,7 @@ $(document).ready(function() {
 // Overlay for eruptions
 // ------------------------------------------------------------------------
 
-    
+
     // For each eruption record that we have, lets create a marker on the map
     for (var i in eruptions) {
       addEruption(eruptions[i]);
@@ -203,10 +203,10 @@ $(document).ready(function() {
       });
 
 
-      // When we hover over a marker, lets make it more opaque 
+      // When we hover over a marker, lets make it more opaque
       eruptionCircle.addListener('mouseover', function(event) {
         this.setOptions({fillOpacity: 0.9});
-      }); 
+      });
 
 
       // return the marker to normal opacity when we are no longer hovering over it
@@ -216,14 +216,14 @@ $(document).ready(function() {
 
 
       // Add reference to each marker ot an array for later use
-      ERUPTIONS.push(eruptionCircle);  
+      ERUPTIONS.push(eruptionCircle);
     }
 
 // ------------------------------------------------------------------------
 // Overlay for earthquakes
 // ------------------------------------------------------------------------
 
-    
+
     // For each earthquake record that we have, lets create a marker on the map
     for (var i in earthquakes) {
       addEarthquake(earthquakes[i]);
@@ -255,19 +255,19 @@ $(document).ready(function() {
         infowindow.setContent(html);
         infowindow.setPosition(event.latLng);
         infowindow.open(map, this);
-      });   
+      });
 
 
-      // When we hover over a marker, lets make it more opaque 
+      // When we hover over a marker, lets make it more opaque
       earthquakeCircle.addListener('mouseover', function(event) {
         this.setOptions({fillOpacity: 0.9});
-      }); 
+      });
 
 
       // return the marker to normal opacity when we are no longer hovering over it
       earthquakeCircle.addListener('mouseout', function(event) {
         this.setOptions({fillOpacity: marker_opacity()});
-      });          
+      });
 
 
       // Add reference to each marker ot an array for later use
@@ -368,7 +368,7 @@ $(document).ready(function() {
     addLoadingIcon();
     SHOW_EARTHQUAKES = $("#earthquake-checkbox").is(':checked')
     adjust_visible();
-  }) 
+  })
 
   $("#change-view").on('click',function(){
     addLoadingIcon();
@@ -377,7 +377,7 @@ $(document).ready(function() {
     }else{
       map.setMapTypeId(google.maps.MapTypeId.HYBRID);
     }
-  }) 
+  })
 
   map.addListener('tilesloaded',function(){
     removeLoadingIcon();
@@ -385,7 +385,7 @@ $(document).ready(function() {
 
   $('#min-vei').on('change',function(){
     MIN_VEI = $('#min-vei').val();
-    adjust_visible();  
+    adjust_visible();
   })
 
   $('#max-vei').on('change',function(){
@@ -395,13 +395,13 @@ $(document).ready(function() {
 
   $('#min-mag').on('change',function(){
     MIN_MAG = $('#min-mag').val();
-    adjust_visible();    
-  })  
+    adjust_visible();
+  })
 
   $('#max-mag').on('change',function(){
     MAX_MAG = $('#max-mag').val();
     adjust_visible();
-  })  
+  })
 
 // ------------------------------------------------------------------------
 // Function to adjust the visible markers on the map
@@ -415,7 +415,7 @@ $(document).ready(function() {
     for(i in ERUPTIONS){
       eruption = ERUPTIONS[i];
 
-      if(!SHOW_ERUPTIONS 
+      if(!SHOW_ERUPTIONS
         || eruption.data.VEI < MIN_VEI || eruption.data.VEI > MAX_VEI
         || eruption.data.Year < TIMELINE_LO || TIMELINE_HI < eruption.data.Year){
         eruption.setVisible(false);
@@ -428,7 +428,7 @@ $(document).ready(function() {
     for(i in EARTHQUAKES){
       earthquake = EARTHQUAKES[i];
 
-      if(!SHOW_EARTHQUAKES 
+      if(!SHOW_EARTHQUAKES
         || earthquake.data.INTENSITY < MIN_MAG || eruption.data.INTENSITY > MAX_MAG
         || earthquake.data.YEAR < TIMELINE_LO || TIMELINE_HI < earthquake.data.YEAR){
         earthquake.setVisible(false);
@@ -473,7 +473,7 @@ $(document).ready(function() {
     if(a.VEI > b.INTENSITY)
       return -1;
     return 0;
-  }  
+  }
 
   function removeLoadingIcon(){
     $('body').find('.centered').remove();
@@ -482,7 +482,7 @@ $(document).ready(function() {
   function addLoadingIcon(){
     var loading = $('body').append('<img src="icons/loader.gif" id="loading" class="centered"></img>');
   }
-  
+
 
 
   });
