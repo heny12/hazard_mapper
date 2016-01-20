@@ -52,15 +52,16 @@ $(document).ready(function() {
     // when called this function will center the map on the location of the users ip address,
     function centerMap(){
       // gets location from this address TODO - maybe find a better way to get location
-      $.get("http://ipinfo.io", function(response) {
-          if(response.loc){
-            coord = response.loc.split(",");
-            center = new google.maps.LatLng(coord[0],coord[1]);
-            map.panTo(center);
-          }else{ // if it doesnt work, pan to seattle of course
+      // TODO add this back in with https
+      // $.get("http://ipinfo.io", function(response) {
+      //     if(response.loc){
+      //       coord = response.loc.split(",");
+      //       center = new google.maps.LatLng(coord[0],coord[1]);
+      //       map.panTo(center);
+      //     }else{ // if it doesnt work, pan to seattle of course
             map.panTo(new google.maps.LatLng(47.6097, -122.3331));
-          }
-      }, "jsonp");
+      //     }
+      // }, "jsonp");
     };
     centerMap();
 
